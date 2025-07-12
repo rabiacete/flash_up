@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'home_screen.dart';
-import 'register_screen.dart';
+
+import '../services/supabase_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -11,66 +11,60 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  final supabase = Supabase.instance.client;
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  bool loading = false;
 
-  Future<void> login() async {
+  void _login() async {
+    setState(() => loading = true);
     try {
       final response = await supabase.auth.signInWithPassword(
-        email: emailController.text,
-        password: passwordController.text,
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
       );
-      if (response.session != null) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const HomeScreen()),
-        );
-      }
-    } catch (e) {
-      String errorMessage = 'Bir hata oluştu. Lütfen tekrar deneyin.';
-      if (e.toString().contains('Email not confirmed')) {
-        errorMessage =
-            'E-posta doğrulaması yapılmamış. Lütfen e-postanızı kontrol edin.';
-      } else if (e.toString().contains('Invalid login credentials')) {
-        errorMessage = 'E-posta veya şifre hatalı. Lütfen bilgilerinizi kontrol edin.';
+
+      final user = response.user;
+
+      setState(() => loading = false);
+
+      if (user == null) {
+        _showMessage('Giriş başarısız. Bilgileri kontrol et.');
+        return;
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMessage)),
+      if (user.emailConfirmedAt == null) {
+        _showMessage('Lütfen e-postanı doğrula.');
+        return;
+      }
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const HomeScreen()),
       );
+    } catch (e) {
+      setState(() => loading = false);
+      _showMessage('Hata: ${e.toString()}');
     }
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Giriş Yap')),
+      appBar: AppBar(title: const Text('Giriş')),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            TextField(
-              controller: emailController,
-              decoration: const InputDecoration(labelText: 'E-posta'),
-            ),
-            TextField(
-              controller: passwordController,
-              decoration: const InputDecoration(labelText: 'Şifre'),
-              obscureText: true,
-            ),
+            TextField(controller: emailController, decoration: const InputDecoration(labelText: 'Email')),
+            TextField(controller: passwordController, obscureText: true, decoration: const InputDecoration(labelText: 'Şifre')),
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: login,
-              child: const Text('Giriş Yap'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const RegisterScreen()),
-              ),
-              child: const Text('Hesabın yok mu? Kayıt Ol'),
-            ),
+            loading
+                ? const CircularProgressIndicator()
+                : ElevatedButton(onPressed: _login, child: const Text('Giriş Yap')),
           ],
         ),
       ),

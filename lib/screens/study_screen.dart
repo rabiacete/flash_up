@@ -1,4 +1,3 @@
-// screens/study_screen.dart
 import 'dart:math';
 import 'package:flutter/material.dart';
 
@@ -36,13 +35,34 @@ class _StudyScreenState extends State<StudyScreen> {
   Widget build(BuildContext context) {
     if (currentIndex >= reviewList.length) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Çalışma Bitti')),
-        body: const Center(child: Text('Tüm kartlar bitti.')),
+        backgroundColor: const Color(0xFF5B8BDF), // Arka plan rengi
+        appBar: AppBar(
+          title: const Text(
+            'Çalışma Bitti',
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: const Color(0xFF5B8BDF),
+          elevation: 0,
+        ),
+        body: const Center(
+          child: Text(
+            'Tüm kartlar bitti.',
+            style: TextStyle(fontSize: 24, color: Colors.white),
+          ),
+        ),
       );
     }
     final card = reviewList[currentIndex];
     return Scaffold(
-      appBar: AppBar(title: const Text('Desteyi Çalış')),
+      backgroundColor: const Color(0xFF5B8BDF), // Arka plan rengi
+      appBar: AppBar(
+        title: const Text(
+          'Desteyi Çalış',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: const Color(0xFF5B8BDF),
+        elevation: 0,
+      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -50,27 +70,46 @@ class _StudyScreenState extends State<StudyScreen> {
             GestureDetector(
               onTap: () => setState(() => showBack = !showBack),
               child: Card(
+                color: Colors.white, // Kart arka planı beyaz
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16), // Kart köşeleri yuvarlatıldı
+                ),
                 margin: const EdgeInsets.all(20),
                 child: Padding(
-                  padding: const EdgeInsets.all(32),
+                  padding: const EdgeInsets.all(48), // Daha büyük padding
                   child: Text(
                     showBack ? card['back'] : card['front'],
-                    style: const TextStyle(fontSize: 24),
+                    style: const TextStyle(
+                      fontSize: 32, // Daha büyük font boyutu
+                      color: Colors.black, // Siyah yazı rengi
+                    ),
+                    textAlign: TextAlign.center, // Metni ortala
                   ),
                 ),
               ),
             ),
+            const SizedBox(height: 32), // Butonlar için daha fazla boşluk
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ElevatedButton(
                   onPressed: () => mark(true),
-                  child: const Text('Bildim'),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16), // Daha büyük buton
+                    textStyle: const TextStyle(fontSize: 20), // Daha büyük yazı boyutu
+                    backgroundColor: Colors.green, // Buton arka planı yeşil
+                  ),
+                  child: const Text('TRUE ✔️'),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: 24), // Butonlar arasında boşluk
                 ElevatedButton(
                   onPressed: () => mark(false),
-                  child: const Text('Bilemedim'),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16), // Daha büyük buton
+                    textStyle: const TextStyle(fontSize: 20), // Daha büyük yazı boyutu
+                    backgroundColor: Colors.red, // Buton arka planı kırmızı
+                  ),
+                  child: const Text('FALSE ✖️'),
                 ),
               ],
             )

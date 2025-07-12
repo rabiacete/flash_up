@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'confirmation_info_screen.dart';
+import '../services/supabase_service.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -10,15 +10,14 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  final supabase = Supabase.instance.client;
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
 
   Future<void> register() async {
     try {
       final response = await supabase.auth.signUp(
-        email: emailController.text,
-        password: passwordController.text,
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
       );
 
       if (response.user != null) {
@@ -29,11 +28,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Kayıt sırasında bir hata oluştu: ${e.toString()}',
-          ),
-        ),
+        SnackBar(content: Text('Kayıt sırasında bir hata oluştu: ${e.toString()}')),
       );
     }
   }
@@ -56,10 +51,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               obscureText: true,
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: register,
-              child: const Text('Kayıt Ol'),
-            ),
+            ElevatedButton(onPressed: register, child: const Text('Kayıt Ol')),
           ],
         ),
       ),
