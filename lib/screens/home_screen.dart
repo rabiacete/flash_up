@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'create_deck_screen.dart';
 import 'deck_detail_screen.dart';
+import 'login_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -18,7 +19,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final response = await supabase
         .from('decks')
         .select()
-        .order('is_pinned', ascending: false) // Sabitlenenler üstte
+        .order('is_pinned', ascending: false)
         .order('created_at');
     setState(() {
       decks = response;
@@ -26,16 +27,12 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> deleteDeck(String id) async {
-    // Önce ilişkili flashcard'ları sil
     await supabase.from('flashcards').delete().eq('deck_id', id);
-
-    // Ardından desteyi sil
     await supabase.from('decks').delete().eq('id', id);
     fetchDecks();
   }
 
   Future<void> togglePin(String id, bool currentPinState) async {
-    // Sabitleme veya sabitlenmeyi kaldırma
     await supabase
         .from('decks')
         .update({'is_pinned': !currentPinState})
@@ -52,7 +49,21 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Flashcards')),
+      appBar: AppBar(
+        title: const Text('Flashcards'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              await supabase.auth.signOut();
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => const LoginScreen()),
+              );
+            },
+          ),
+        ],
+      ),
       body: ListView.builder(
         itemCount: decks.length,
         itemBuilder: (context, index) {
@@ -74,16 +85,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 color: Colors.white,
               ),
             ),
-            // Sağa kaydırınca sil, sola kaydırınca sabitle
             confirmDismiss: (direction) async {
               if (direction == DismissDirection.startToEnd) {
-                // sağa kaydırma → sil
                 await deleteDeck(deck['id']);
                 return true;
               } else if (direction == DismissDirection.endToStart) {
-                // sola kaydırma → sabitle
                 await togglePin(deck['id'], deck['is_pinned'] ?? false);
-                return false; // kart silinmesin, sadece güncellensin
+                return false;
               }
               return false;
             },

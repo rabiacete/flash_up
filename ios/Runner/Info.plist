@@ -9,7 +9,17 @@
 </dict>
 <key>NSLocationWhenInUseUsageDescription</key>
 <string>İnternet bağlantı durumunu kontrol etmek için gerekli.</string>
-
+<key>CFBundleURLTypes</key>
+<array>
+  <dict>
+    <key>CFBundleTypeRole</key>
+    <string>Editor</string>
+    <key>CFBundleURLSchemes</key>
+    <array>
+      <string>myapp</string> <!-- Burada "myapp" custom scheme adıdır -->
+    </array>
+  </dict>
+</array>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
